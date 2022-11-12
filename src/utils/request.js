@@ -1,7 +1,8 @@
 // 这里的请求自己维护
 import axios from 'axios'
+import { Message } from 'element-ui'
 const service = axios.create({
-  baseURL: process.env.VUE_BASE_API,
+  baseURL: process.env.VUE_APP_BASE_API,
   timeout: 5000
 })
 
@@ -11,10 +12,19 @@ service.interceptors.request.use(config => {
 })
 
 // 添加响应拦截器
+// service.interceptors.response.use(response=>{},error=>{})
 service.interceptors.response.use(res => {
-  // 因为axios默认会包裹一下，所以组要结构一下
-  const { data } = res
-  return data
+  // 因为axios默认会包裹一下，所以需要解构一下
+  const { success, message, data } = res.data
+  if (success) {
+    return data
+  } else {
+    Message.error(message)
+    return Promise.reject(new Error(message))
+  }
+}, error => {
+  Message.error(error.message) // 提示错误信息
+  return Promise.reject(error) // 返回执行错误，让当前的执行链跳出成功，直接进入catch
 })
 
 export default service

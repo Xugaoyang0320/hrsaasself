@@ -35,6 +35,20 @@ module.exports = {
     overlay: {
       warnings: false,
       errors: true
+    },
+    // 通过proxy节点进行跨域代理（对象的形式）
+    proxy: {
+      // '你要访问的地址':{
+      // target:你要代理的服务器地址
+      // changeOrigin:true 是否跨域,true}
+      // 如果有需要在真正请求期间将/api去除,需要在pathRewrite
+      '/api': {
+        target: 'http://ihrm.itheima.net/',
+        changeOrigin: true
+      //  pathRewrite: {
+      //     '/api': ''
+      //   }
+      }
     }
 
   },

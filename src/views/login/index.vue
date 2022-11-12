@@ -46,7 +46,7 @@
       <el-button class="loginBtn" :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">登录</el-button>
 
       <div class="tips">
-        <span style="margin-right:20px;">账号:13888888888</span>
+        <span style="margin-right:20px;">账号:13800000002</span>
         <span>密码:123456</span>
       </div>
 
@@ -56,7 +56,7 @@
 
 <script>
 import { validMobile } from '@/utils/validate'
-
+import { mapActions } from 'vuex'
 export default {
   name: 'Login',
   data() {
@@ -80,8 +80,8 @@ export default {
     // }
     return {
       loginForm: {
-        mobile: '13888888888',
-        password: '123123'
+        mobile: '13800000002',
+        password: '123456'
       },
       loginRules: {
         // trigger:校验触发方式 blur和change
@@ -108,6 +108,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions(['user/login']), // 引入方法
     showPwd() {
       if (this.passwordType === 'password') {
         this.passwordType = ''
@@ -119,21 +120,24 @@ export default {
       })
     },
     handleLogin() {
-      this.$refs.loginForm.validate(valid => {
-        if (valid) {
-          this.loading = true
-          this.$store.dispatch('user/login', this.loginForm).then(() => {
-            this.$router.push({ path: this.redirect || '/' })
-            // this.$router.push('/')
+      this.$refs.loginForm.validate(async(isOk) => {
+        if (isOk) {
+          try {
+            this.loading = true
+            // 校验通过才调用action
+            await this['user/login'](this.loginForm)
+            // async标记的实际上是一个promise对象
+            // await 下面的代码都是成功执行的代码
+            this.$router.push('/')
+          } catch (error) {
+            console.log(error)
+          } finally {
+            // 无论是try还是catch都会进入Finally
             this.loading = false
-          }).catch(() => {
-            this.loading = false
-          })
-        } else {
-          console.log('error submit!!')
-          return false
+          }
         }
-      })
+      }
+      )
     }
   }
 }
