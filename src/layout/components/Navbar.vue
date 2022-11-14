@@ -21,7 +21,7 @@
               首页
             </el-dropdown-item>
           </router-link>
-          <a target="_blank" href="https://github.com/Xugaoyang0320/hrsaasself">
+          <a target="_blank" href="https://github.com/Xugaoyang0320/hrsaasself.git">
             <el-dropdown-item>项目地址</el-dropdown-item>
           </a>
           <el-dropdown-item divided @click.native="logout">

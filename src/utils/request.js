@@ -51,7 +51,7 @@ service.interceptors.response.use(res => {
   return Promise.reject(error) // 返回执行错误，让当前的执行链跳出成功，直接进入catch
 })
 
-const Timeout = 3000 // 超时时间
+const Timeout = 1 * 60 * 60 * 8 * 1000 // 超时时间
 function isCheckTimeOUt() {
   const currTime = Date.now()
   const prevTime = getTimeStamp()
