@@ -1,6 +1,10 @@
 // 这里的请求自己维护
 import axios from 'axios'
+import store from '@/store'
 import { Message } from 'element-ui'
+import { getTimeStamp } from './auth'
+import router from '@/router'
+
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API,
   timeout: 5000
@@ -8,7 +12,21 @@ const service = axios.create({
 
 // 添加请求拦截器
 service.interceptors.request.use(config => {
-  return config
+  // config是请求的配置信息
+  // 注入token
+  if (store.getters.token) {
+    // 有token的情况下，才有必要检查时间戳
+    if (isCheckTimeOUt()) {
+      // true表示token超时,token失效
+      store.dispatch('user/logout')
+      router.push('/login')
+      return Promise.reject(new Error('token超时了'))
+    }
+    config.headers['Authorization'] = `Bearer ${store.getters.token}`
+  }
+  return config // 必须返回
+}, error => {
+  return Promise.reject(error)
 })
 
 // 添加响应拦截器
@@ -23,10 +41,22 @@ service.interceptors.response.use(res => {
     return Promise.reject(new Error(message))
   }
 }, error => {
-  Message.error(error.message) // 提示错误信息
+  if (error.response && error.response.data && error.response.data.code === 10002) {
+    store.dispatch('user/logout')
+    router.push('/login')
+  } else {
+    Message.error(error.message) // 提示错误信息
+  }
+
   return Promise.reject(error) // 返回执行错误，让当前的执行链跳出成功，直接进入catch
 })
 
+const Timeout = 3000 // 超时时间
+function isCheckTimeOUt() {
+  const currTime = Date.now()
+  const prevTime = getTimeStamp()
+  return currTime - prevTime > Timeout
+}
 export default service
 
 // import axios from 'axios'

@@ -9,7 +9,7 @@ const writrList = ['/login', '/404']
 // next()放行
 // next(false) 跳转终止
 // next(地址)跳转到某个地址
-router.beforeEach((to, from, next) => {
+router.beforeEach(async(to, from, next) => {
   nprogress.start()// 开启进度条
   if (store.getters.token) {
     // 如果有token
@@ -17,6 +17,15 @@ router.beforeEach((to, from, next) => {
       // 如果访问的是登录页
       next('/') // 跳转到首页
     } else {
+      // 只有在有token放行的情况下，才能获取资料
+      // 如果当前vuex中有用户的id，表示已经有资料了，不需要获取，如果没有才需要获取
+      // if (!store.state.user.userInfo.userId) {
+      // 在getters形成了快捷访问
+      if (!store.getters.userId) {
+        // 如果没有id表示当前用户资料没有被获取过
+        await store.dispatch('user/getUserInfo')
+        // 后续要根据用户资料获取数据的话,这边必须改成同步
+      }
       next()
     }
   } else {
